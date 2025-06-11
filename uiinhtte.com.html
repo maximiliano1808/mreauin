@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil de Proyectos - Dibuja en Imagen</title>
+    <!-- Incluye Tailwind CSS desde CDN para estilos responsivos y modernos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Incluye la fuente Inter de Google Fonts para una mejor tipografía -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Define la fuente Inter como la fuente principal para todo el cuerpo del documento */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilos para el modal de mensajes (sustituye a alert()) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0; /* Inicialmente oculto */
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            transform: translateY(-20px); /* Efecto al aparecer */
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: translateY(0);
+        }
+        /* Estilos para el canvas de dibujo */
+        #drawingCanvas {
+            border: 1px solid #ddd;
+            cursor: crosshair; /* Cambia el cursor a una cruz para indicar dibujo */
+            background-color: #f0f0f0; /* Fondo por si no hay imagen */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+
+    <!-- Contenedor principal con un ancho máximo y centrado -->
+    <div class="max-w-4xl mx-auto">
+
+        <!-- Sección del Encabezado/Perfil (EXISTENTE) -->
+        <header class="bg-white p-6 rounded-xl shadow-md mb-8 flex flex-col md:flex-row items-center md:justify-between">
+            <div class="text-center md:text-left mb-4 md:mb-0">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Mi Portafolio de Proyectos</h1>
+                <p class="text-gray-600 text-lg">Explora mis repositorios y contribuciones.</p>
+            </div>
+            <!-- Puedes reemplazar este placeholder con tu foto de perfil o un ícono -->
+            <img src="https://placehold.co/100x100/4f46e5/ffffff?text=Tu+Foto" alt="Foto de Perfil" class="w-24 h-24 rounded-full border-4 border-indigo-500 shadow-lg">
+        </header>
+
+        <!-- Contenedor de Proyectos/Repositorios (EXISTENTE) -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Mis Repositorios</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Tarjeta de Repositorio 1 (EJEMPLO) -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <h3 class="text-xl font-bold text-indigo-700 mb-2">Nombre-Del-Proyecto-1</h3>
+                    <p class="text-gray-700 mb-4">
+                        Una breve descripción de este proyecto. Aquí puedes explicar de qué trata,
+                        qué tecnologías usa y su propósito principal.
+                    </p>
+                    <a href="https://github.com/tu-usuario/nombre-del-proyecto-1" target="_blank" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                        Ver en GitHub
+                    </a>
+                </div>
+                <!-- Tarjeta de Repositorio 2 (EJEMPLO) -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <h3 class="text-xl font-bold text-indigo-700 mb-2">Mi-Otro-Proyecto</h3>
+                    <p class="text-gray-700 mb-4">
+                        Este es otro proyecto importante. Podría ser un proyecto personal, un trabajo
+                        de clase o una contribución open-source.
+                    </p>
+                    <a href="https://github.com/tu-usuario/mi-otro-proyecto" target="_blank" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                        Ver en GitHub
+                    </a>
+                </div>
+                <!-- Puedes añadir más tarjetas de repositorio aquí si lo deseas -->
+            </div>
+        </section>
+
+        ---
+
+        <!-- Sección de Carga y Descarga de Archivos con Dibujo -->
+        <section class="bg-white p-6 rounded-xl shadow-md mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Subir Imagen, Dibujar y Guardar</h2>
+
+            <!-- Entrada de Texto y Descarga (EXISTENTE) -->
+            <div class="mb-8 p-4 border border-gray-200 rounded-lg">
+                <label for="textInput" class="block text-gray-700 text-sm font-bold mb-2">
+                    Escribe tu texto aquí:
+                </label>
+                <textarea id="textInput" rows="6" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 text-gray-700" placeholder="Escribe tu mensaje o contenido..."></textarea>
+                <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center">
+                    <label for="textFileName" class="block text-gray-700 text-sm font-bold mr-2 mb-2 sm:mb-0">
+                        Nombre del archivo de texto:
+                    </label>
+                    <input type="text" id="textFileName" value="mi_texto" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:w-auto flex-grow rounded-md py-2 px-3 text-gray-700 mr-2">
+                    <span class="text-gray-600 mr-4">.txt</span>
+                    <button id="downloadTextBtn" class="mt-3 sm:mt-0 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-lg transition duration-200 shadow-md">
+                        Descargar Texto
+                    </button>
+                </div>
+            </div>
+
+            <!-- Carga, Dibujo y Descarga de Imagen -->
+            <div class="p-4 border border-gray-200 rounded-lg">
+                <label for="imageUpload" class="block text-gray-700 text-sm font-bold mb-2">
+                    Sube una imagen (PNG, JPG, GIF) y ¡dibuja en ella!:
+                </label>
+                <input type="file" id="imageUpload" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                <div class="mt-4 text-center">
+                    <!-- Canvas para la imagen y el dibujo -->
+                    <canvas id="drawingCanvas" class="max-w-full h-auto rounded-lg shadow-md mx-auto mb-4" style="max-height: 400px; object-fit: contain;"></canvas>
+                    <div class="flex justify-center space-x-4">
+                        <button id="clearCanvasBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-5 rounded-lg transition duration-200 shadow-md">
+                            Borrar Dibujo
+                        </button>
+                        <button id="downloadImageWithDrawingBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-lg transition duration-200 shadow-md">
+                            Descargar Imagen con Dibujo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pie de página simple (EXISTENTE) -->
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p>&copy; 2025 Tu Nombre. Todos los derechos reservados.</p>
+        </footer>
+
+    </div>
+
+    <!-- Modal de Mensajes Personalizado (para reemplazar alert()) -->
+    <div id="messageModal" class="modal-overlay">
+        <div class="modal-content">
+            <p id="modalMessage" class="text-lg text-gray-700 mb-4"></p>
+            <button id="closeModalBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Función para mostrar el modal de mensajes ---
+        function showMessageModal(message) {
+            const modal = document.getElementById('messageModal');
+            const modalMessage = document.getElementById('modalMessage');
+            modalMessage.textContent = message;
+            modal.classList.add('visible'); // Muestra el modal con transición
+        }
+
+        // --- Event listener para cerrar el modal ---
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('messageModal').classList.remove('visible'); // Oculta el modal con transición
+        });
+
+        // --- Lógica para Descargar Texto (EXISTENTE) ---
+        document.getElementById('downloadTextBtn').addEventListener('click', () => {
+            const textContent = document.getElementById('textInput').value;
+            let fileName = document.getElementById('textFileName').value.trim() || 'mi_texto';
+
+            if (!textContent) {
+                showMessageModal('¡No hay texto para descargar!');
+                return;
+            }
+
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName + '.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+            showMessageModal(`"${link.download}" se ha descargado exitosamente.`);
+        });
+
+        // --- Lógica para Carga, Dibujo y Descarga de Imagen ---
+        const imageUpload = document.getElementById('imageUpload');
+        const drawingCanvas = document.getElementById('drawingCanvas');
+        const ctx = drawingCanvas.getContext('2d');
+        const clearCanvasBtn = document.getElementById('clearCanvasBtn');
+        const downloadImageWithDrawingBtn = document.getElementById('downloadImageWithDrawingBtn');
+
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let originalImage = null; // Para almacenar la imagen original y redibujarla
+
+        // Configuración del lápiz
+        ctx.strokeStyle = '#22d3ee'; // Color azul brillante
+        ctx.lineWidth = 5;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        // Función para redibujar la imagen original en el canvas
+        function redrawImage() {
+            ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height); // Limpia todo el canvas
+            if (originalImage) {
+                // Dibujar la imagen escalada para que quepa en el canvas sin distorsionarse
+                const aspectRatio = originalImage.width / originalImage.height;
+                let newWidth = drawingCanvas.width;
+                let newHeight = drawingCanvas.height;
+
+                if (drawingCanvas.width / drawingCanvas.height > aspectRatio) {
+                    newWidth = drawingCanvas.height * aspectRatio;
+                } else {
+                    newHeight = drawingCanvas.width / aspectRatio;
+                }
+
+                const offsetX = (drawingCanvas.width - newWidth) / 2;
+                const offsetY = (drawingCanvas.height - newHeight) / 2;
+
+                ctx.drawImage(originalImage, offsetX, offsetY, newWidth, newHeight);
+            }
+        }
+
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    showMessageModal('Por favor, selecciona un archivo de imagen válido (PNG, JPG, GIF).');
+                    imageUpload.value = '';
+                    originalImage = null;
+                    ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        originalImage = img; // Guarda la imagen original
+                        // Asegura que el canvas tenga un tamaño razonable para la previsualización
+                        const maxWidth = 600; // Ancho máximo para el canvas
+                        const maxHeight = 400; // Alto máximo para el canvas
+
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth) {
+                            height = height * (maxWidth / width);
+                            width = maxWidth;
+                        }
+                        if (height > maxHeight) {
+                            width = width * (maxHeight / height);
+                            height = maxHeight;
+                        }
+
+                        drawingCanvas.width = width;
+                        drawingCanvas.height = height;
+
+                        redrawImage(); // Dibuja la imagen en el canvas
+                    };
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => {
+                    showMessageModal('Error al cargar la imagen.');
+                    originalImage = null;
+                    ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                originalImage = null;
+                ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+            }
+        });
+
+        // Eventos para el dibujo en el canvas
+        drawingCanvas.addEventListener('mousedown', (e) => {
+            if (!originalImage) {
+                showMessageModal('Sube una imagen primero para poder dibujar.');
+                return;
+            }
+            isDrawing = true;
+            // Obtiene las coordenadas del ratón relativas al canvas
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        });
+
+        drawingCanvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            // Dibuja una línea desde la última posición a la posición actual
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        });
+
+        drawingCanvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+        drawingCanvas.addEventListener('mouseout', () => {
+            isDrawing = false; // Detiene el dibujo si el ratón sale del canvas
+        });
+
+        // Adaptar el canvas al tamaño de la ventana (para redibujar la imagen si el tamaño cambia)
+        window.addEventListener('resize', () => {
+            // Esto es importante para que el canvas se mantenga responsivo
+            // Sin embargo, para este tipo de aplicación (dibujo), cambiar el tamaño del canvas
+            // con un redibujo simple borraría el dibujo.
+            // Para mantener el dibujo, se necesitaría guardar los trazos o
+            // redimensionar el canvas sin borrar su contenido, lo cual es más complejo.
+            // Por ahora, simplemente redibujamos la imagen original.
+            if (originalImage) {
+                 // Resetea el tamaño del canvas a su tamaño de imagen original para evitar problemas de redimensionado de dibujo
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = drawingCanvas.width;
+                tempCanvas.height = drawingCanvas.height;
+                tempCtx.drawImage(drawingCanvas, 0, 0);
+
+                const maxWidth = 600;
+                const maxHeight = 400;
+
+                let width = originalImage.width;
+                let height = originalImage.height;
+
+                if (width > maxWidth) {
+                    height = height * (maxWidth / width);
+                    width = maxWidth;
+                }
+                if (height > maxHeight) {
+                    width = width * (maxHeight / height);
+                    height = maxHeight;
+                }
+
+                drawingCanvas.width = width;
+                drawingCanvas.height = height;
+                
+                ctx.drawImage(tempCanvas, 0, 0, drawingCanvas.width, drawingCanvas.height);
+            }
+        });
+
+
+        // Botón para borrar el dibujo del canvas
+        clearCanvasBtn.addEventListener('click', () => {
+            if (originalImage) {
+                redrawImage(); // Redibuja solo la imagen original, borrando los trazos
+                showMessageModal('¡Dibujo borrado!');
+            } else {
+                showMessageModal('No hay una imagen o dibujo para borrar.');
+            }
+        });
+
+        // Botón para descargar la imagen con los dibujos
+        downloadImageWithDrawingBtn.addEventListener('click', () => {
+            if (!originalImage) {
+                showMessageModal('Sube una imagen primero para descargar con dibujos.');
+                return;
+            }
+            // Asegura que el canvas tenga el tamaño real de la imagen para la descarga de alta calidad
+            // Esto recrea la imagen original sin escalar antes de añadir el dibujo
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = originalImage.naturalWidth;
+            finalCanvas.height = originalImage.naturalHeight;
+            const finalCtx = finalCanvas.getContext('2d');
+
+            // Dibuja la imagen original a su tamaño real
+            finalCtx.drawImage(originalImage, 0, 0);
+
+            // Calcula el factor de escala para transferir los dibujos
+            const scaleX = originalImage.naturalWidth / drawingCanvas.width;
+            const scaleY = originalImage.naturalHeight / drawingCanvas.height;
+
+            // Transfiere los dibujos desde el canvas de visualización al canvas final, escalándolos
+            // Esto es complejo si queremos transferir los trazos vectoriales.
+            // La forma más simple es dibujar la imagen del canvas de dibujo directamente al canvas final.
+            // Esto solo funciona si el canvas de dibujo está a la misma resolución.
+            // Para este caso, vamos a simplemente dibujar el contenido actual del canvas.
+            // Si la imagen original es más grande que el canvas de dibujo, la descarga
+            // tendrá la resolución del canvas de dibujo, no la original.
+
+            // Para descargar la imagen con la calidad original + dibujos:
+            // 1. Dibuja la imagen original en un canvas temporal con su tamaño original.
+            // 2. Dibuja el *contenido* del 'drawingCanvas' (que tiene los trazos) sobre este canvas temporal.
+            //    Para hacer esto correctamente, necesitamos escalar los trazos o dibujarlos en relación
+            //    al tamaño original.
+
+            // Simplificación: Dibuja la imagen y los trazos tal como están en `drawingCanvas`
+            // al tamaño original de la imagen, si la imagen original es más grande.
+            // Si la imagen original es más pequeña, se usará el tamaño del drawingCanvas.
+
+            // Mejor enfoque: Redimensionar el canvas de descarga al tamaño real de la imagen
+            // y luego dibujar el canvas de dibujo sobre él, escalándolo.
+            finalCtx.drawImage(drawingCanvas, 0, 0, finalCanvas.width, finalCanvas.height);
+
+
+            const link = document.createElement('a');
+            link.download = 'imagen_con_dibujo.png'; // Nombre por defecto para la imagen con dibujo
+            link.href = finalCanvas.toDataURL('image/png'); // Obtiene la URL de datos del canvas
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showMessageModal(`"${link.download}" se ha descargado exitosamente.`);
+        });
+
+        // Inicializar el canvas con un tamaño por defecto
+        drawingCanvas.width = 300;
+        drawingCanvas.height = 200;
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        ctx.font = '20px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#333';
+        ctx.fillText('Sube una imagen para dibujar', drawingCanvas.width / 2, drawingCanvas.height / 2);
+    </script>
+</body>
+</html>
